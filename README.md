@@ -188,7 +188,7 @@ Supported platforms include:
 Contributions are welcome! Please follow the [Contribution Guidelines](CONTRIBUTING.md) for bug fixes, features, or
 documentation improvements.
 
-# ✨ Special Thanks
+## ✨ Special Thanks
 
 A huge thank you to the following outstanding open-source projects that have provided invaluable support for this
 project's development! 🚀
