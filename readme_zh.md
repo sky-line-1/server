@@ -121,7 +121,7 @@ PPanel 服务端是 PPanel 项目的后端组件，为代理服务提供强大�
 
 ## 🌐 官方网站
 
-访问 [ppanel.dev](https://ppanel.dev/) 获取更多信息。
+访问 [ppanel.dev](https://ppanel.dev) 获取更多信息。
 
 ## 📁 目录结构
 
@@ -185,6 +185,85 @@ make linux-arm64  # 构建特定平台
 ## 🤝 贡献
 
 欢迎各种贡献，包括功能开发、错误修复和文档改进。请查看[贡献指南](CONTRIBUTING_ZH.md)了解详情。
+
+# ✨ 特别感谢
+
+感谢以下优秀的开源项目，它们为本项目的开发提供了强大的支持！ 🚀
+
+<div style="overflow-x: auto;">
+<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+  <thead>
+    <tr style="background-color: #f5f5f5;">
+      <th style="padding: 10px; text-align: center;">项目</th>
+      <th style="padding: 10px; text-align: left;">描述</th>
+      <th style="padding: 10px; text-align: center;">项目</th>
+      <th style="padding: 10px; text-align: left;">描述</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="center" style="padding: 15px; vertical-align: middle;">
+        <a href="https://gin-gonic.com/" style="text-decoration: none;">
+          <img src="https://raw.githubusercontent.com/gin-gonic/logo/master/color.png" width="25" alt="Gin" style="border-radius: 8px;" /><br/>
+          <strong>Gin</strong><br/>
+          <img src="https://img.shields.io/github/stars/gin-gonic/gin?style=social" alt="Gin Stars" />
+        </a>
+      </td>
+      <td style="padding: 15px; vertical-align: middle;">
+        高性能的 Go Web 框架<br/>
+      </td>
+      <td align="center" style="padding: 15px; vertical-align: middle;">
+        <a href="https://gorm.io/" style="text-decoration: none;">
+          <img src="https://gorm.io/gorm.svg" width="50" alt="Gorm" style="border-radius: 8px;" /><br/>
+          <strong>Gorm</strong><br/>
+          <img src="https://img.shields.io/github/stars/go-gorm/gorm?style=social" alt="Gorm Stars" />
+        </a>
+      </td>
+      <td style="padding: 15px; vertical-align: middle;">
+        功能强大的 Go ORM 框架<br/>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" style="padding: 15px; vertical-align: middle;">
+        <a href="https://github.com/hibiken/asynq" style="text-decoration: none;">
+          <img src="https://user-images.githubusercontent.com/11155743/114697792-ffbfa580-9d26-11eb-8e5b-33bef69476dc.png" width="50" alt="Asynq" style="border-radius: 8px;" /><br/>
+          <strong>Asynq</strong><br/>
+          <img src="https://img.shields.io/github/stars/hibiken/asynq?style=social" alt="Asynq Stars" />
+        </a>
+      </td>
+      <td style="padding: 15px; vertical-align: middle;">
+        Go 语言的异步任务队列<br/>
+      </td>
+      <td align="center" style="padding: 15px; vertical-align: middle;">
+        <a href="https://goswagger.io/" style="text-decoration: none;">
+          <img src="https://goswagger.io/go-swagger/logo.png" width="30" alt="Go-Swagger" style="border-radius: 8px;" /><br/>
+          <strong>Go-Swagger</strong><br/>
+          <img src="https://img.shields.io/github/stars/go-swagger/go-swagger?style=social" alt="Go-Swagger Stars" />
+        </a>
+      </td>
+      <td style="padding: 15px; vertical-align: middle;">
+        完整的 Go Swagger 工具集<br/>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" style="padding: 15px; vertical-align: middle;">
+        <a href="https://go-zero.dev/" style="text-decoration: none;">
+          <img src="https://raw.githubusercontent.com/zeromicro/zero-doc/main/doc/images/go-zero.png" width="30" alt="Go-Zero" style="border-radius: 8px;" /><br/>
+          <strong>Go-Zero</strong><br/>
+          <img src="https://img.shields.io/github/stars/zeromicro/go-zero?style=social" alt="Go-Zero Stars" />
+        </a>
+      </td>
+      <td colspan="3" style="padding: 15px; vertical-align: middle;">
+        Go 微服务框架（本项目的 API 生成器，基于 Go-Zero 实现）<br/>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+---
+
+🎉 **致敬开源**：感谢开源社区，让开发变得更简单、更高效！欢迎为这些项目点亮 ⭐，支持开源事业！
 
 ## 📄 许可证
 
