@@ -30,7 +30,7 @@ func NewAdapter(nodes []*server.Server, rules []*server.RuleGroup) *Adapter {
 		}
 	}
 	// 合并代理组
-	proxyGroup = append(proxyGroup, g...)
+	proxyGroup = RemoveEmptyGroup(append(proxyGroup, g...))
 	return &Adapter{
 		Adapter: proxy.Adapter{
 			Proxies: proxies,
