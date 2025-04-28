@@ -32,6 +32,7 @@ type SubscribeDetails struct {
 	Subscribe   *subscribe.Subscribe `gorm:"foreignKey:SubscribeId;references:Id"`
 	StartTime   time.Time            `gorm:"default:CURRENT_TIMESTAMP(3);not null;comment:Subscription Start Time"`
 	ExpireTime  time.Time            `gorm:"default:NULL;comment:Subscription Expire Time"`
+	FinishedAt  *time.Time           `gorm:"default:NULL;comment:Finished Time"`
 	Traffic     int64                `gorm:"default:0;comment:Traffic"`
 	Download    int64                `gorm:"default:0;comment:Download Traffic"`
 	Upload      int64                `gorm:"default:0;comment:Upload Traffic"`
