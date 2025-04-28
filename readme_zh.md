@@ -2,10 +2,10 @@
 
 <div align="center">
 
-[![License](https://img.shields.io/github/license/perfect-panel/ppanel-server)](LICENSE)
+[![License](https://img.shields.io/github/license/perfect-panel/server)](LICENSE)
 ![Go Version](https://img.shields.io/badge/Go-1.21%2B-blue)
 [![Docker](https://img.shields.io/badge/Docker-Available-blue)](Dockerfile)
-[![CI/CD](https://img.shields.io/github/actions/workflow/status/perfect-panel/ppanel-server/release.yml)](.github/workflows/release.yml)
+[![CI/CD](https://img.shields.io/github/actions/workflow/status/perfect-panel/server/release.yml)](.github/workflows/release.yml)
 
 **PPanel 是一个纯净、专业、完美的开源代理面板工具，旨在成为您学习和实际使用的理想选择。**
 

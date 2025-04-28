@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![License](https://img.shields.io/github/license/perfect-panel/ppanel-server)](LICENSE)
+[![License](https://img.shields.io/github/license/perfect-panel/server)](LICENSE)
 ![Go Version](https://img.shields.io/badge/Go-1.21%2B-blue)
 [![Docker](https://img.shields.io/badge/Docker-Available-blue)](Dockerfile)
 [![CI/CD](https://img.shields.io/github/actions/workflow/status/perfect-panel/ppanel-server/release.yml)](.github/workflows/release.yml)
