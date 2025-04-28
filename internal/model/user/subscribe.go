@@ -76,7 +76,10 @@ func (m *defaultUserModel) QueryUserSubscribe(ctx context.Context, userId int64,
 		// 获取当前时间向前推 7 天
 		sevenDaysAgo := time.Now().Add(-7 * 24 * time.Hour)
 		// 基础条件查询
-		conn = conn.Model(&Subscribe{}).Where("`user_id` = ? and `status` IN ?", userId, status)
+		conn = conn.Model(&Subscribe{}).Where("`user_id` = ?", userId)
+		if len(status) > 0 {
+			conn = conn.Where("`status` IN ?", status)
+		}
 		return conn.Where("`expire_time` > ? OR `finished_at` >= ?", now, sevenDaysAgo).
 			Preload("Subscribe").
 			Find(&list).Error

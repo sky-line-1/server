@@ -369,14 +369,13 @@ func (l *ActivateOrderLogic) Renewal(ctx context.Context, orderInfo *order.Order
 		userSub.Status = 1
 	}
 
-	//fix bug:FinishedAt causes the update subscription to fail
-	if now.AddDate(-30, 0, 0).After(*userSub.FinishedAt) {
-		userSub.FinishedAt = &now
-	}
 	// Check whether traffic reset on renewal is enabled
 	if !*sub.RenewalReset {
 		userSub.Download = 0
 		userSub.Upload = 0
+	}
+	if userSub.FinishedAt != nil {
+		userSub.FinishedAt = nil
 	}
 
 	userSub.ExpireTime = tool.AddTime(sub.UnitTime, orderInfo.Quantity, userSub.ExpireTime)
