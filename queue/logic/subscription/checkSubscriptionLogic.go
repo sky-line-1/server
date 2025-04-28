@@ -87,7 +87,10 @@ func (l *CheckSubscriptionLogic) ProcessTask(ctx context.Context, _ *asynq.Task)
 			ids = append(ids, item.Id)
 		}
 		if len(ids) > 0 {
-			err = db.Model(&user.Subscribe{}).Where("id IN ?", ids).Update("status", 3).Error
+			err = db.Model(&user.Subscribe{}).Where("id IN ?", ids).Updates(map[string]interface{}{
+				"status":      3,
+				"finished_at": time.Now(),
+			}).Error
 			if err != nil {
 				logger.Error("[Check Subscription Expire] Update subscribe status failed", logger.Field("error", err.Error()))
 				return err
