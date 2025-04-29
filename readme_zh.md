@@ -126,7 +126,7 @@ PPanel 服务端是 PPanel 项目的后端组件，为代理服务提供强大�
 
 ## 🏛 系统架构
 
-![Architecture Diagram](./doc/image/architecture.svg)
+![Architecture Diagram](./doc/image/architecture-zh.png)
 
 ## 📁 目录结构
 

@@ -127,7 +127,7 @@ Visit [ppanel.dev](https://ppanel.dev/) for more details.
 
 ## 🏛 Architecture
 
-![Architecture Diagram](./doc/image/architecture.svg)
+![Architecture Diagram](./doc/image/architecture-en.png)
 
 ## 📁 Directory Structure
 
