@@ -2,6 +2,7 @@ package subscribe
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -228,13 +229,13 @@ func (l *SubscribeLogic) buildClientConfig(req *types.SubscribeRequest, userSub 
 }
 
 func (l *SubscribeLogic) setClashHeaders() {
-	l.ctx.Header("content-disposition", fmt.Sprintf("tattachment;filename*=UTF-8''%s.yaml", l.svc.Config.Site.SiteName))
+	l.ctx.Header("content-disposition", fmt.Sprintf("attachment;filename*=UTF-8''%s", url.QueryEscape(l.svc.Config.Site.SiteName)))
 	l.ctx.Header("Profile-Update-Interval", "24")
 	l.ctx.Header("Content-Type", "application/octet-stream; charset=UTF-8")
 }
 
 func (l *SubscribeLogic) setSurfboardHeaders() {
-	l.ctx.Header("content-disposition", fmt.Sprintf("attachment;filename*=UTF-8''%s.conf", l.svc.Config.Site.SiteName))
+	l.ctx.Header("content-disposition", fmt.Sprintf("attachment;filename*=UTF-8''%s.conf", url.QueryEscape(l.svc.Config.Site.SiteName)))
 	l.ctx.Header("Content-Type", "application/octet-stream; charset=UTF-8")
 }
 
