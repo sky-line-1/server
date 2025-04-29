@@ -49,7 +49,7 @@ func BuildSurfboard(servers proxy.Adapter, siteName string, user UserInfo) []byt
 	}
 
 	//final rule
-	rules += "# 最终规则" + "\r\n" + "FINAL, 手动选择"
+	rules += "FINAL, 手动选择"
 
 	file, err := configFiles.ReadFile("default.tpl")
 	if err != nil {

@@ -45,7 +45,7 @@ func (c *Clash) Build(uuid string) ([]byte, error) {
 		})
 	}
 	rawConfig.ProxyGroups = groups
-	rawConfig.Rules = append(c.Rules, "# 最终规则", "MATCH,手动选择")
+	rawConfig.Rules = append(c.Rules, "MATCH,手动选择")
 	return yaml.Marshal(&rawConfig)
 }
 

@@ -71,7 +71,7 @@ func (m *Surge) Build(uuid, siteName string, user UserInfo) []byte {
 		rules += rule + "\r\n"
 	}
 	//final rule
-	rules += "# 最终规则" + "\r\n" + "FINAL,手动选择,dns-failed"
+	rules += "\r\n" + "FINAL,手动选择,dns-failed"
 
 	file, err := configFiles.ReadFile("default.tpl")
 	if err != nil {
