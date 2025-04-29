@@ -3,7 +3,7 @@
 <div align="center">
 
 [![License](https://img.shields.io/github/license/perfect-panel/server)](LICENSE)
-![Go Version](https://img.shields.io/badge/Go-1.21%2B-blue)
+[![Go Version](https://img.shields.io/badge/Go-1.21%2B-blue)](https://go.dev/)
 [![Go Report Card](https://goreportcard.com/badge/github.com/perfect-panel/server)](https://goreportcard.com/report/github.com/perfect-panel/server)
 [![Docker](https://img.shields.io/badge/Docker-Available-blue)](Dockerfile)
 [![CI/CD](https://img.shields.io/github/actions/workflow/status/perfect-panel/server/release.yml)](.github/workflows/release.yml)
@@ -123,6 +123,10 @@ PPanel 服务端是 PPanel 项目的后端组件，为代理服务提供强大�
 ## 🌐 官方网站
 
 访问 [ppanel.dev](https://ppanel.dev) 获取更多信息。
+
+## 🏛 系统架构
+
+![Architecture Diagram](./doc/image/architecture.svg)
 
 ## 📁 目录结构
 
