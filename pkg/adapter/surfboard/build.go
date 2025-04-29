@@ -22,13 +22,21 @@ var shadowsocksSupportMethod = []string{"aes-128-gcm", "aes-192-gcm", "aes-256-g
 
 func BuildSurfboard(servers proxy.Adapter, siteName string, user UserInfo) []byte {
 	var proxies, proxyGroup string
+	var removed []string
 	for _, node := range servers.Proxies {
 		if uri := buildProxy(node, user.UUID); uri != "" {
 			proxies += uri
+		} else {
+			removed = append(removed, node.Name)
 		}
 	}
 
 	for _, group := range servers.Group {
+
+		if len(removed) > 0 {
+			group.Proxies = tool.RemoveStringElement(group.Proxies, removed...)
+		}
+
 		if group.Type == proxy.GroupTypeSelect {
 			proxyGroup += fmt.Sprintf("%s = select, %s", group.Name, strings.Join(group.Proxies, ", ")) + "\r\n"
 		} else if group.Type == proxy.GroupTypeURLTest {

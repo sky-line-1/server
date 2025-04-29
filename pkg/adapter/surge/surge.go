@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"embed"
 	"fmt"
+	"github.com/perfect-panel/server/pkg/tool"
 	"net/url"
 	"strings"
 	"text/template"
@@ -40,6 +41,7 @@ func NewSurge(adapter proxy.Adapter) *Surge {
 
 func (m *Surge) Build(uuid, siteName string, user UserInfo) []byte {
 	var proxies, proxyGroup, rules string
+	var removed []string
 
 	for _, p := range m.Adapter.Proxies {
 		switch p.Protocol {
@@ -51,9 +53,14 @@ func (m *Surge) Build(uuid, siteName string, user UserInfo) []byte {
 			proxies += buildHysteria2(p, uuid)
 		case "vmess":
 			proxies += buildVMess(p, uuid)
+		default:
+			removed = append(removed, p.Name)
 		}
 	}
 	for _, group := range m.Adapter.Group {
+		if len(removed) > 0 {
+			group.Proxies = tool.RemoveStringElement(group.Proxies, removed...)
+		}
 		if group.Type == proxy.GroupTypeSelect {
 			proxyGroup += fmt.Sprintf("%s = select, %s", group.Name, strings.Join(group.Proxies, ", ")) + "\r\n"
 		} else if group.Type == proxy.GroupTypeURLTest {

@@ -128,3 +128,15 @@ func Contains[T comparable](slice []T, target T) bool {
 	}
 	return false
 }
+
+// RemoveStringElement 移除指定元素
+func RemoveStringElement(arr []string, element ...string) []string {
+	var result []string
+	for _, str := range arr {
+		if !Contains(element, str) {
+			logger.Infof("Remove Element: %s", str)
+			result = append(result, str)
+		}
+	}
+	return result
+}

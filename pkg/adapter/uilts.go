@@ -196,24 +196,12 @@ func RemoveEmptyString(arr []string) []string {
 	return result
 }
 
-// RemoveElement 移除指定元素
-func RemoveElement(arr []string, element ...string) []string {
-	var result []string
-	for _, str := range arr {
-		if !tool.Contains(element, str) {
-			logger.Infof("Remove Element: %s", str)
-			result = append(result, str)
-		}
-	}
-	return result
-}
-
 func RemoveEmptyGroup(arr []proxy.Group) []proxy.Group {
 	var result []proxy.Group
 	var removeNames []string
 	for _, group := range arr {
 		if group.Name == "手动选择" {
-			group.Proxies = RemoveElement(group.Proxies, removeNames...)
+			group.Proxies = tool.RemoveStringElement(group.Proxies, removeNames...)
 		}
 		if len(group.Proxies) > 0 {
 			result = append(result, group)
