@@ -8,14 +8,14 @@
 
 1. Determine your system architecture and download the corresponding binary file.
 
-Download URL: `https://github.com/perfect-panel/ppanel/releases`
+Download URL: `https://github.com/perfect-panel/server/releases`
 
 Example setup: OS: Linux amd64, User: root, Current directory: `/root`
 
 - Download the binary file:
 
 ```shell
-$ wget https://github.com/perfect-panel/ppanel/releases/download/v0.1.0/ppanel-server-linux-amd64.tar.gz
+$ wget https://github.com/perfect-panel/server/releases/download/v1.0.0/ppanel-server-linux-amd64.tar.gz
 ```
 
 - Extract the binary file:

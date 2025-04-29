@@ -6,14 +6,14 @@
 #### 二进制安装
 1.确定系统架构，并下载对应的二进制文件
 
-下载地址：`https://github.com/perfect-panel/ppanel/releases`
+下载地址：`https://github.com/perfect-panel/server/releases`
 
 示例说明：系统：Linux amd64，用户：root，当前目录：/root
 
 - 下载二进制文件
 
 ```shell
-$ wget https://github.com/perfect-panel/ppanel/releases/download/v0.1.0/ppanel-server-linux-amd64.tar.gz
+$ wget https://github.com/perfect-panel/server/releases/download/v1.0.0/ppanel-server-linux-amd64.tar.gz
 ```
 
 - 解压二进制文件
