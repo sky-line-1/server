@@ -785,7 +785,7 @@ type GetNodeMultiplierResponse struct {
 type GetNodeServerListRequest struct {
 	Page    int    `form:"page" validate:"required"`
 	Size    int    `form:"size" validate:"required"`
-	Tag     string `form:"tag,omitempty"`
+	Tags    string `form:"tags,omitempty"`
 	GroupId int64  `form:"group_id,omitempty"`
 	Search  string `form:"search,omitempty"`
 }
