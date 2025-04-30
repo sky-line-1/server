@@ -32,11 +32,15 @@ func NewGetNodeListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetNo
 }
 
 func (l *GetNodeListLogic) GetNodeList(req *types.GetNodeServerListRequest) (resp *types.GetNodeServerListResponse, err error) {
+	tags := make([]string, 0)
+	if req.Tags != "" {
+		tags = strings.Split(req.Tags, ",")
+	}
 	total, list, err := l.svcCtx.ServerModel.FindServerListByFilter(l.ctx, &server.ServerFilter{
 		Page:   req.Page,
 		Size:   req.Size,
 		Search: req.Search,
-		Tag:    req.Tag,
+		Tags:   tags,
 		Group:  req.GroupId,
 	})
 	if err != nil {

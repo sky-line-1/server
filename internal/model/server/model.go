@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/perfect-panel/server/internal/config"
 	"gorm.io/gorm"
@@ -29,6 +30,8 @@ type customServerLogicModel interface {
 	UpdateRuleGroup(ctx context.Context, data *RuleGroup) error
 	DeleteRuleGroup(ctx context.Context, id int64) error
 	QueryAllRuleGroup(ctx context.Context) ([]*RuleGroup, error)
+	FindServersByTag(ctx context.Context, tag string) ([]*Server, error)
+	FindServerTags(ctx context.Context) ([]string, error)
 }
 
 var (
@@ -227,10 +230,16 @@ func (m *customServerModel) FindServerListByFilter(ctx context.Context, filter *
 			query = conn.Where("group_id = ?", filter.Group)
 		}
 		if filter.Search != "" {
-			query = query.Where("name LIKE ? OR server_addr LIKE ?", "%"+filter.Search+"%", "%"+filter.Search+"%")
+			query = query.Where("name LIKE ? OR server_addr LIKE ? OR tags LIKE ?", "%"+filter.Search+"%", "%"+filter.Search+"%", "%"+filter.Search+"%")
 		}
-		if filter.Tag != "" {
-			query = query.Where("tag LIKE ?", "%"+filter.Tag+"%")
+		if len(filter.Tags) > 0 {
+			for i, tag := range filter.Tags {
+				if i == 0 {
+					query = query.Where("tags LIKE ?", "%"+tag+"%")
+				} else {
+					query = query.Or("tags LIKE ?", "%"+tag+"%")
+				}
+			}
 		}
 		return query.Count(&total).Limit(filter.Size).Offset((filter.Page - 1) * filter.Size).Find(v).Error
 	})
@@ -238,4 +247,28 @@ func (m *customServerModel) FindServerListByFilter(ctx context.Context, filter *
 		return 0, nil, err
 	}
 	return total, data, nil
+}
+
+func (m *customServerModel) FindServerTags(ctx context.Context) ([]string, error) {
+	var data []string
+	err := m.QueryNoCacheCtx(ctx, &data, func(conn *gorm.DB, v interface{}) error {
+		return conn.Model(&Server{}).Distinct("tags").Pluck("tags", v).Error
+	})
+	var tags []string
+	for _, tag := range data {
+		if strings.Contains(tag, ",") {
+			tags = append(tags, strings.Split(tag, ",")...)
+		} else {
+			tags = append(tags, tag)
+		}
+	}
+	return tags, err
+}
+
+func (m *customServerModel) FindServersByTag(ctx context.Context, tag string) ([]*Server, error) {
+	var data []*Server
+	err := m.QueryNoCacheCtx(ctx, &data, func(conn *gorm.DB, v interface{}) error {
+		return conn.Model(&Server{}).Where("FIND_IN_SET(?, tags)", tag).Order("sort ASC").Find(v).Error
+	})
+	return data, err
 }

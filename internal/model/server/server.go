@@ -16,7 +16,7 @@ const (
 
 type ServerFilter struct {
 	Id     int64
-	Tag    string
+	Tags   []string
 	Group  int64
 	Search string
 	Page   int

@@ -175,10 +175,32 @@ func (l *SubscribeLogic) getRules() ([]*server.RuleGroup, error) {
 }
 
 func (l *SubscribeLogic) buildClientConfig(req *types.SubscribeRequest, userSub *user.Subscribe, servers []*server.Server, rules []*server.RuleGroup) ([]byte, string, error) {
-	proxyManager := adapter.NewAdapter(servers, rules)
+	tags := make(map[string][]*server.Server)
+
+	groups, err := l.svc.ServerModel.QueryAllGroup(l.ctx)
+	if err != nil {
+		l.Errorw("[Generate Subscribe]find group error: %v", logger.Field("error", err.Error()))
+		return nil, "", errors.Wrapf(xerr.NewErrCode(xerr.DatabaseQueryError), "find group error: %v", err.Error())
+	}
+	for _, group := range groups {
+		total, servers, err := l.svc.ServerModel.FindServerListByFilter(l.ctx, &server.ServerFilter{
+			Tags: []string{group.Name},
+		})
+		if err != nil {
+			continue
+		}
+		if total > 0 {
+			tags[group.Name] = servers
+		}
+	}
+
+	proxyManager := adapter.NewAdapter(&adapter.Config{
+		Nodes: servers,
+		Rules: rules,
+		Tags:  make(map[string][]*server.Server),
+	})
 	clientType := l.getClientType(req)
 	var resp []byte
-	var err error
 
 	l.Logger.Info(fmt.Sprintf("[Generate Subscribe] %s", clientType), logger.Field("ua", req.UA), logger.Field("flag", req.Flag))
 
