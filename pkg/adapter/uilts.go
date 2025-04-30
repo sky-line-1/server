@@ -109,6 +109,18 @@ func adapterRules(groups []*server.RuleGroup) (proxyGroup []proxy.Group, rules [
 	return
 }
 
+func adapterTags(tags map[string][]*server.Server, group []proxy.Group) (proxyGroup []proxy.Group) {
+	for tag, servers := range tags {
+		proxies := adapterProxies(servers)
+		if len(proxies) != 0 {
+			for _, p := range proxies {
+				group = addProxyToGroup(p.Name, tag, group)
+			}
+		}
+	}
+	return group
+}
+
 func generateProxyGroup(servers []proxy.Proxy) (proxyGroup []proxy.Group, region []string) {
 	// 设置手动选择分组
 	proxyGroup = append(proxyGroup, []proxy.Group{

@@ -177,27 +177,28 @@ func (l *SubscribeLogic) getRules() ([]*server.RuleGroup, error) {
 func (l *SubscribeLogic) buildClientConfig(req *types.SubscribeRequest, userSub *user.Subscribe, servers []*server.Server, rules []*server.RuleGroup) ([]byte, string, error) {
 	tags := make(map[string][]*server.Server)
 
-	groups, err := l.svc.ServerModel.QueryAllGroup(l.ctx)
+	serverTags, err := l.svc.ServerModel.FindServerTags(l.ctx)
 	if err != nil {
-		l.Errorw("[Generate Subscribe]find group error: %v", logger.Field("error", err.Error()))
-		return nil, "", errors.Wrapf(xerr.NewErrCode(xerr.DatabaseQueryError), "find group error: %v", err.Error())
+		l.Errorw("[Generate Subscribe]find server tags error: %v", logger.Field("error", err.Error()))
+		return nil, "", errors.Wrapf(xerr.NewErrCode(xerr.DatabaseQueryError), "find server tags error: %v", err.Error())
 	}
-	for _, group := range groups {
-		total, servers, err := l.svc.ServerModel.FindServerListByFilter(l.ctx, &server.ServerFilter{
-			Tags: []string{group.Name},
-		})
+	// Deduplicate tags
+	serverTags = tool.RemoveDuplicateElements(serverTags...)
+	for _, tag := range serverTags {
+		s, err := l.svc.ServerModel.FindServersByTag(l.ctx.Request.Context(), tag)
 		if err != nil {
+			l.Errorw("[Generate Subscribe]find servers by tag error: %v", logger.Field("error", err.Error()))
 			continue
 		}
-		if total > 0 {
-			tags[group.Name] = servers
+		if len(s) > 0 {
+			tags[tag] = s
 		}
 	}
 
 	proxyManager := adapter.NewAdapter(&adapter.Config{
 		Nodes: servers,
 		Rules: rules,
-		Tags:  make(map[string][]*server.Server),
+		Tags:  tags,
 	})
 	clientType := l.getClientType(req)
 	var resp []byte

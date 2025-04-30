@@ -12,25 +12,36 @@ import (
 	"github.com/perfect-panel/server/pkg/adapter/surfboard"
 )
 
+type Config struct {
+	Nodes []*server.Server
+	Rules []*server.RuleGroup
+	Tags  map[string][]*server.Server
+}
+
 type Adapter struct {
 	proxy.Adapter
 }
 
-func NewAdapter(nodes []*server.Server, rules []*server.RuleGroup) *Adapter {
+func NewAdapter(cfg *Config) *Adapter {
 	// 转换服务器列表
-	proxies := adapterProxies(nodes)
+	proxies := adapterProxies(cfg.Nodes)
 	// 生成代理组
 	proxyGroup, region := generateProxyGroup(proxies)
+
 	// 转换规则组
-	g, r := adapterRules(rules)
+	g, r := adapterRules(cfg.Rules)
+
 	// 加入兜底节点
 	for i, group := range g {
 		if len(group.Proxies) == 0 {
 			g[i].Proxies = append([]string{"DIRECT"}, region...)
 		}
 	}
+
 	// 合并代理组
 	proxyGroup = RemoveEmptyGroup(append(proxyGroup, g...))
+	// 处理标签
+	proxyGroup = adapterTags(cfg.Tags, proxyGroup)
 	return &Adapter{
 		Adapter: proxy.Adapter{
 			Proxies: proxies,
