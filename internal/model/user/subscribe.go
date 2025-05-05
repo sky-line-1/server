@@ -109,12 +109,16 @@ func (m *defaultUserModel) FindOneSubscribeByToken(ctx context.Context, token st
 
 // UpdateSubscribe updates a record.
 func (m *defaultUserModel) UpdateSubscribe(ctx context.Context, data *Subscribe, tx ...*gorm.DB) error {
+	old, err := m.FindOneSubscribe(ctx, data.Id)
+	if err != nil {
+		return err
+	}
 	return m.ExecCtx(ctx, func(conn *gorm.DB) error {
 		if len(tx) > 0 {
 			conn = tx[0]
 		}
-		return conn.Model(&Subscribe{}).Where("token = ?", data.Token).Save(data).Error
-	}, m.getSubscribeCacheKey(data)...)
+		return conn.Model(&Subscribe{}).Where("id = ?", data.Id).Save(data).Error
+	}, m.getSubscribeCacheKey(old)...)
 }
 
 // DeleteSubscribe deletes a record.
