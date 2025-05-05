@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"github.com/perfect-panel/server/internal/model/order"
 	"time"
 
 	"github.com/perfect-panel/server/pkg/constant"
@@ -47,12 +48,20 @@ func (l *ResetUserSubscribeTokenLogic) ResetUserSubscribeToken(req *types.ResetU
 		l.Errorw("UserSubscribeId does not belong to the current user")
 		return errors.Wrapf(xerr.NewErrCode(xerr.InvalidAccess), "UserSubscribeId does not belong to the current user")
 	}
+
+	var orderDetails *order.Details
 	// find order
-	orderDetails, err := l.svcCtx.OrderModel.FindOneDetails(l.ctx, userSub.OrderId)
-	if err != nil {
-		l.Errorw("FindOneDetails failed:", logger.Field("error", err.Error()))
-		return errors.Wrapf(xerr.NewErrCode(xerr.DatabaseQueryError), "FindOneDetails failed: %v", err.Error())
+	if userSub.OrderId != 0 {
+		orderDetails, err = l.svcCtx.OrderModel.FindOneDetails(l.ctx, userSub.OrderId)
+		if err != nil {
+			l.Errorw("FindOneDetails failed:", logger.Field("error", err.Error()))
+			return errors.Wrapf(xerr.NewErrCode(xerr.DatabaseQueryError), "FindOneDetails failed: %v", err.Error())
+		}
+	} else {
+		// if order id is 0, this a admin create user subscribe
+		orderDetails = &order.Details{}
 	}
+
 	userSub.Token = uuidx.SubscribeToken(orderDetails.OrderNo + time.Now().Format("20060102150405.000"))
 	userSub.UUID = uuid.New().String()
 	var newSub user.Subscribe

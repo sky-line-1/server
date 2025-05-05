@@ -55,7 +55,6 @@ func (m *defaultUserModel) FindOneSubscribe(ctx context.Context, id int64) (*Sub
 		return conn.Model(&Subscribe{}).Where("id = ?", id).First(&data).Error
 	})
 	return &data, err
-
 }
 
 func (m *defaultUserModel) FindUsersSubscribeBySubscribeId(ctx context.Context, subscribeId int64) ([]*Subscribe, error) {
