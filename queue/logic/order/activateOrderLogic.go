@@ -366,7 +366,6 @@ func (l *ActivateOrderLogic) Renewal(ctx context.Context, orderInfo *order.Order
 	now := time.Now()
 	if userSub.ExpireTime.Before(now) {
 		userSub.ExpireTime = now
-		userSub.Status = 1
 	}
 
 	// Check whether traffic reset on renewal is enabled
@@ -379,6 +378,7 @@ func (l *ActivateOrderLogic) Renewal(ctx context.Context, orderInfo *order.Order
 	}
 
 	userSub.ExpireTime = tool.AddTime(sub.UnitTime, orderInfo.Quantity, userSub.ExpireTime)
+	userSub.Status = 1
 	// update user subscribe
 	err = l.svc.UserModel.UpdateSubscribe(ctx, userSub)
 	if err != nil {
