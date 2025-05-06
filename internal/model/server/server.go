@@ -52,7 +52,7 @@ func (*Server) TableName() string {
 
 func (s *Server) BeforeDelete(tx *gorm.DB) error {
 	logger.Debugf("[Server] BeforeDelete")
-	if err := tx.Model(&Server{}).Exec("UPDATE `server` SET sort = sort - 1 WHERE sort > ?", s.Sort).Error; err != nil {
+	if err := tx.Exec("UPDATE `server` SET sort = sort - 1 WHERE sort > ?", s.Sort).Error; err != nil {
 		return err
 	}
 	return nil
