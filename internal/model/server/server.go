@@ -65,7 +65,13 @@ func (s *Server) BeforeUpdate(tx *gorm.DB) error {
 		Where("sort = ? AND id != ?", s.Sort, s.Id).Count(&count).Error; err != nil {
 		return err
 	}
-	if count > 0 {
+	if count > 1 {
+		// reorder sort
+		if err := reorderSort(tx); err != nil {
+			logger.Errorf("[Server] BeforeUpdate reorderSort error: %v", err.Error())
+			return err
+		}
+		// get max sort
 		var maxSort int64
 		if err := tx.Model(&Server{}).Select("MAX(sort)").Scan(&maxSort).Error; err != nil {
 			return err
@@ -181,4 +187,18 @@ type RuleGroup struct {
 
 func (RuleGroup) TableName() string {
 	return "server_rule_group"
+}
+func reorderSort(tx *gorm.DB) error {
+	var servers []Server
+	if err := tx.Order("sort, id").Find(&servers).Error; err != nil {
+		return err
+	}
+	for i, server := range servers {
+		if server.Sort != int64(i)+1 {
+			if err := tx.Exec("UPDATE `server` SET sort = ? WHERE id = ?", i+1, server.Id).Error; err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
