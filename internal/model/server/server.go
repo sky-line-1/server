@@ -52,33 +52,26 @@ func (*Server) TableName() string {
 
 func (s *Server) BeforeDelete(tx *gorm.DB) error {
 	logger.Debugf("[Server] BeforeDelete")
-
 	if err := tx.Exec("UPDATE `server` SET sort = sort - 1 WHERE sort > ?", s.Sort).Error; err != nil {
 		return err
 	}
-	// 删除后重新排序，防止因 sort 缺口导致问题
-	if err := reorderSort(tx); err != nil {
-		return err
-	}
-
 	return nil
 }
 
 func (s *Server) BeforeUpdate(tx *gorm.DB) error {
 	logger.Debugf("[Server] BeforeUpdate")
-
 	var count int64
-	if err := tx.Model(&Server{}).Where("sort = ? AND id != ?", s.Sort, s.Id).Count(&count).Error; err != nil {
+	if err := tx.Set("gorm:query_option", "FOR UPDATE").Model(&Server{}).
+		Where("sort = ? AND id != ?", s.Sort, s.Id).Count(&count).Error; err != nil {
 		return err
 	}
-
 	if count > 0 {
-		logger.Debugf("[Server] Duplicate sort found, reordering...")
-		if err := reorderSort(tx); err != nil {
+		var maxSort int64
+		if err := tx.Model(&Server{}).Select("MAX(sort)").Scan(&maxSort).Error; err != nil {
 			return err
 		}
+		s.Sort = maxSort + 1
 	}
-
 	return nil
 }
 
@@ -191,17 +184,13 @@ func (RuleGroup) TableName() string {
 }
 
 func reorderSort(tx *gorm.DB) error {
-	var servers []*Server
-	if err := tx.Model(&Server{}).Order("sort ASC").Find(&servers).Error; err != nil {
+	var servers []Server
+	if err := tx.Order("sort, id").Find(&servers).Error; err != nil {
 		return err
 	}
-
 	for i, server := range servers {
-		newSort := int64(i + 1)
-		if server.Sort != newSort {
-			if err := tx.Model(&Server{}).
-				Where("id = ?", server.Id).
-				Update("sort", newSort).Error; err != nil {
+		if server.Sort != int64(i)+1 {
+			if err := tx.Exec("UPDATE `server` SET sort = ? WHERE id = ?", i+1, server.Id).Error; err != nil {
 				return err
 			}
 		}

@@ -23,10 +23,10 @@ type (
 		customServerLogicModel
 	}
 	serverModel interface {
-		Insert(ctx context.Context, data *Server) error
+		Insert(ctx context.Context, data *Server, tx ...*gorm.DB) error
 		FindOne(ctx context.Context, id int64) (*Server, error)
-		Update(ctx context.Context, data *Server) error
-		Delete(ctx context.Context, id int64) error
+		Update(ctx context.Context, data *Server, tx ...*gorm.DB) error
+		Delete(ctx context.Context, id int64, tx ...*gorm.DB) error
 		Transaction(ctx context.Context, fn func(db *gorm.DB) error) error
 	}
 
@@ -77,8 +77,11 @@ func (m *defaultServerModel) getCacheKeys(data *Server) []string {
 	return cacheKeys
 }
 
-func (m *defaultServerModel) Insert(ctx context.Context, data *Server) error {
+func (m *defaultServerModel) Insert(ctx context.Context, data *Server, tx ...*gorm.DB) error {
 	err := m.ExecCtx(ctx, func(conn *gorm.DB) error {
+		if len(tx) > 0 {
+			conn = tx[0]
+		}
 		return conn.Create(&data).Error
 	}, m.getCacheKeys(data)...)
 	return err
@@ -98,19 +101,21 @@ func (m *defaultServerModel) FindOne(ctx context.Context, id int64) (*Server, er
 	}
 }
 
-func (m *defaultServerModel) Update(ctx context.Context, data *Server) error {
+func (m *defaultServerModel) Update(ctx context.Context, data *Server, tx ...*gorm.DB) error {
 	old, err := m.FindOne(ctx, data.Id)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
 	err = m.ExecCtx(ctx, func(conn *gorm.DB) error {
-		db := conn
-		return db.Save(data).Error
+		if len(tx) > 0 {
+			conn = tx[0]
+		}
+		return conn.Save(data).Error
 	}, m.getCacheKeys(old)...)
 	return err
 }
 
-func (m *defaultServerModel) Delete(ctx context.Context, id int64) error {
+func (m *defaultServerModel) Delete(ctx context.Context, id int64, tx ...*gorm.DB) error {
 	data, err := m.FindOne(ctx, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -119,8 +124,10 @@ func (m *defaultServerModel) Delete(ctx context.Context, id int64) error {
 		return err
 	}
 	err = m.ExecCtx(ctx, func(conn *gorm.DB) error {
-		db := conn
-		return db.Delete(&Server{}, id).Error
+		if len(tx) > 0 {
+			conn = tx[0]
+		}
+		return conn.Delete(&Server{}, id).Error
 	}, m.getCacheKeys(data)...)
 	return err
 }
