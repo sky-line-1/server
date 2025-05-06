@@ -182,18 +182,3 @@ type RuleGroup struct {
 func (RuleGroup) TableName() string {
 	return "server_rule_group"
 }
-
-func reorderSort(tx *gorm.DB) error {
-	var servers []Server
-	if err := tx.Order("sort, id").Find(&servers).Error; err != nil {
-		return err
-	}
-	for i, server := range servers {
-		if server.Sort != int64(i)+1 {
-			if err := tx.Exec("UPDATE `server` SET sort = ? WHERE id = ?", i+1, server.Id).Error; err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
