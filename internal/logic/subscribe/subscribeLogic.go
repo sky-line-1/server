@@ -78,7 +78,7 @@ func (l *SubscribeLogic) getUserSubscribe(token string) (*user.Subscribe, error)
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DatabaseQueryError), "find subscribe error: %v", err.Error())
 	}
 
-	if userSub.Status != 1 {
+	if userSub.Status > 1 {
 		l.Infow("[Generate Subscribe]subscribe is not available", logger.Field("status", int(userSub.Status)), logger.Field("token", token))
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.SubscribeNotAvailable), "subscribe is not available")
 	}
