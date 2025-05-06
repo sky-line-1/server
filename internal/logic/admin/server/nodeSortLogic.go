@@ -67,7 +67,12 @@ func (l *NodeSortLogic) NodeSort(req *types.NodeSortRequest) error {
 			}
 		}
 		for _, item := range itemsToUpdate {
-			if err := db.Model(&server.Server{}).Where("id = ?", item.Id).Update("sort", item.Sort).Error; err != nil {
+			s, err := l.svcCtx.ServerModel.FindOne(l.ctx, item.Id)
+			if err != nil {
+				return err
+			}
+			s.Sort = item.Sort
+			if err := l.svcCtx.ServerModel.Update(l.ctx, s, db); err != nil {
 				l.Errorw("[NodeSort] Update Database Error: ", logger.Field("error", err.Error()), logger.Field("id", item.Id), logger.Field("sort", item.Sort))
 				return err
 			}
