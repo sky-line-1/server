@@ -38,7 +38,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            if [ $(docker ps -q -f name=ppanel-server-dev) ]; then
+            if [ $(docker ps -a -q -f name=ppanel-server-dev) ]; then
               echo "Stopping and removing existing ppanel-server container..."
               docker stop ppanel-server-dev
               docker rm ppanel-server-dev
