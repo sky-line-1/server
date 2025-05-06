@@ -117,12 +117,14 @@ func (l *SubscribeLogic) getServers(userSub *user.Subscribe) ([]*server.Server, 
 	serverIds := tool.StringToInt64Slice(subDetails.Server)
 	groupIds := tool.StringToInt64Slice(subDetails.ServerGroup)
 
+	logger.Debugf("[Generate Subscribe]serverIds: %v, groupIds: %v", serverIds, groupIds)
+
 	servers, err := l.svc.ServerModel.FindServerDetailByGroupIdsAndIds(l.ctx.Request.Context(), groupIds, serverIds)
 	if err != nil {
 		l.Errorw("[Generate Subscribe]find server details error: %v", logger.Field("error", err.Error()))
 		return nil, errors.Wrapf(xerr.NewErrCode(xerr.DatabaseQueryError), "find server details error: %v", err.Error())
 	}
-
+	logger.Debugf("[Generate Subscribe]found servers: %v", len(servers))
 	return servers, nil
 }
 
@@ -241,6 +243,9 @@ func (l *SubscribeLogic) buildClientConfig(req *types.SubscribeRequest, userSub 
 			SubscribeURL: subsURL,
 		})
 		l.setSurfboardHeaders()
+	case "v2rayn":
+		resp = proxyManager.BuildV2rayN(userSub.UUID)
+
 	default:
 		resp = proxyManager.BuildGeneral(userSub.UUID)
 	}
@@ -286,6 +291,7 @@ func (l *SubscribeLogic) getClientType(req *types.SubscribeRequest) string {
 		"shadowrocket": "shadowrocket",
 		"loon":         "loon",
 		"surfboard":    "surfboard",
+		"v2rayn":       "v2rayn",
 	}
 
 	findClient := func(s string) string {

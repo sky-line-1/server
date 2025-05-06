@@ -1,15 +1,14 @@
-package general
+package v2rayn
 
 import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/perfect-panel/server/pkg/adapter/proxy"
 	"net"
 	"net/url"
 	"strconv"
 	"strings"
-
-	"github.com/perfect-panel/server/pkg/adapter/proxy"
 )
 
 type v2rayShareLink struct {
@@ -26,49 +25,46 @@ type v2rayShareLink struct {
 	TLS           string `json:"tls"`
 	Flow          string `json:"flow,omitempty"`
 	Alpn          string `json:"alpn,omitempty"`
-	AllowInsecure bool   `json:"allowInsecure"`
+	AllowInsecure bool   `json:"allowInsecure,omitempty"`
 	Fingerprint   string `json:"fp,omitempty"`
 	PublicKey     string `json:"pbk,omitempty"`
 	ShortId       string `json:"sid,omitempty"`
 	SpiderX       string `json:"spx,omitempty"`
 	V             string `json:"v"`
 }
+type V2rayN struct {
+	proxy.Adapter
+}
 
-// GenerateBase64General  will output node URLs split by '\n' and then encode into base64
-func GenerateBase64General(data []proxy.Proxy, uuid string) []byte {
-	var links []string
-	for _, v := range data {
-		p := buildProxy(v, uuid)
-		if p == "" {
-			continue
+func NewV2rayN(adapter proxy.Adapter) *V2rayN {
+	return &V2rayN{
+		Adapter: adapter,
+	}
+}
+func (m *V2rayN) Build(uuid string) []byte {
+	uri := ""
+	for _, p := range m.Proxies {
+		switch p.Protocol {
+		case "shadowsocks":
+			uri += m.buildShadowsocks(uuid, p) + "\r\n"
+		case "vmess":
+			uri += m.buildVmess(uuid, p) + "\r\n"
+		case "vless":
+			uri += m.buildVless(uuid, p) + "\r\n"
+		case "trojan":
+			uri += m.buildTrojan(uuid, p) + "\r\n"
+		case "hysteria2":
+			uri += m.buildHysteria2(uuid, p) + "\r\n"
+		case "tuic":
+			uri += m.buildTuic(uuid, p) + "\r\n"
 		}
-		links = append(links, p)
 	}
-	var rsp []byte
-	rsp = base64.RawStdEncoding.AppendEncode(rsp, []byte(strings.Join(links, "\n")))
-	return rsp
+	result := base64.StdEncoding.EncodeToString([]byte(uri))
+
+	return []byte(result)
 }
 
-func buildProxy(data proxy.Proxy, uuid string) string {
-	switch data.Protocol {
-	case "shadowsocks":
-		return ShadowsocksUri(data, uuid)
-	case "vmess":
-		return VmessUri(data, uuid)
-	case "vless":
-		return VlessUri(data, uuid)
-	case "trojan":
-		return TrojanUri(data, uuid)
-	case "hysteria2":
-		return Hysteria2Uri(data, uuid)
-	case "tuic":
-		return TuicUri(data, uuid)
-	default:
-		return ""
-	}
-}
-
-func ShadowsocksUri(data proxy.Proxy, uuid string) string {
+func (m *V2rayN) buildShadowsocks(uuid string, data proxy.Proxy) string {
 	ss, ok := data.Option.(proxy.Shadowsocks)
 	if !ok {
 		return ""
@@ -84,7 +80,45 @@ func ShadowsocksUri(data proxy.Proxy, uuid string) string {
 	return u.String()
 }
 
-func VmessUri(data proxy.Proxy, uuid string) string {
+func (m *V2rayN) buildTrojan(uuid string, data proxy.Proxy) string {
+	trojan := data.Option.(proxy.Trojan)
+	transportConfig := trojan.TransportConfig
+	securityConfig := trojan.SecurityConfig
+
+	var query = make(url.Values)
+	setQuery(&query, "type", trojan.Transport)
+	setQuery(&query, "security", trojan.Security)
+
+	switch trojan.Transport {
+	case "ws", "http", "httpupgrade":
+		setQuery(&query, "path", transportConfig.Path)
+		setQuery(&query, "host", transportConfig.Host)
+	case "grpc":
+		setQuery(&query, "serviceName", transportConfig.ServiceName)
+	case "meek":
+		setQuery(&query, "url", transportConfig.Host)
+	}
+
+	setQuery(&query, "sni", securityConfig.SNI)
+	setQuery(&query, "fp", securityConfig.Fingerprint)
+	setQuery(&query, "pbk", securityConfig.RealityPublicKey)
+	setQuery(&query, "sid", securityConfig.RealityShortId)
+
+	if securityConfig.AllowInsecure {
+		setQuery(&query, "allowInsecure", "1")
+	}
+
+	u := &url.URL{
+		Scheme:   "trojan",
+		User:     url.User(uuid),
+		Host:     net.JoinHostPort(data.Server, strconv.Itoa(data.Port)),
+		RawQuery: query.Encode(),
+		Fragment: data.Name,
+	}
+	return u.String()
+}
+
+func (m *V2rayN) buildVmess(uuid string, data proxy.Proxy) string {
 	vmess := data.Option.(proxy.Vmess)
 
 	transport := vmess.TransportConfig
@@ -123,7 +157,7 @@ func VmessUri(data proxy.Proxy, uuid string) string {
 	return "vmess://" + strings.TrimSuffix(base64.StdEncoding.EncodeToString(b), "=")
 }
 
-func VlessUri(data proxy.Proxy, uuid string) string {
+func (m *V2rayN) buildVless(uuid string, data proxy.Proxy) string {
 	vless := data.Option.(proxy.Vless)
 	transportConfig := vless.TransportConfig
 	securityConfig := vless.SecurityConfig
@@ -170,45 +204,7 @@ func VlessUri(data proxy.Proxy, uuid string) string {
 	return u.String()
 }
 
-func TrojanUri(data proxy.Proxy, uuid string) string {
-	trojan := data.Option.(proxy.Trojan)
-	transportConfig := trojan.TransportConfig
-	securityConfig := trojan.SecurityConfig
-
-	var query = make(url.Values)
-	setQuery(&query, "type", trojan.Transport)
-	setQuery(&query, "security", trojan.Security)
-
-	switch trojan.Transport {
-	case "ws", "http", "httpupgrade":
-		setQuery(&query, "path", transportConfig.Path)
-		setQuery(&query, "host", transportConfig.Host)
-	case "grpc":
-		setQuery(&query, "serviceName", transportConfig.ServiceName)
-	case "meek":
-		setQuery(&query, "url", transportConfig.Host)
-	}
-
-	setQuery(&query, "sni", securityConfig.SNI)
-	setQuery(&query, "fp", securityConfig.Fingerprint)
-	setQuery(&query, "pbk", securityConfig.RealityPublicKey)
-	setQuery(&query, "sid", securityConfig.RealityShortId)
-
-	if securityConfig.AllowInsecure {
-		setQuery(&query, "allowInsecure", "1")
-	}
-
-	u := &url.URL{
-		Scheme:   "trojan",
-		User:     url.User(uuid),
-		Host:     net.JoinHostPort(data.Server, strconv.Itoa(data.Port)),
-		RawQuery: query.Encode(),
-		Fragment: data.Name,
-	}
-	return u.String()
-}
-
-func Hysteria2Uri(data proxy.Proxy, uuid string) string {
+func (m *V2rayN) buildHysteria2(uuid string, data proxy.Proxy) string {
 	hysteria2 := data.Option.(proxy.Hysteria2)
 
 	var query = make(url.Values)
@@ -238,7 +234,7 @@ func Hysteria2Uri(data proxy.Proxy, uuid string) string {
 	return u.String()
 }
 
-func TuicUri(data proxy.Proxy, uuid string) string {
+func (m *V2rayN) buildTuic(uuid string, data proxy.Proxy) string {
 	tuic := data.Option.(proxy.Tuic)
 	var query = make(url.Values)
 

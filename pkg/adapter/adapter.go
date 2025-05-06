@@ -10,6 +10,7 @@ import (
 	"github.com/perfect-panel/server/pkg/adapter/shadowrocket"
 	"github.com/perfect-panel/server/pkg/adapter/singbox"
 	"github.com/perfect-panel/server/pkg/adapter/surfboard"
+	"github.com/perfect-panel/server/pkg/adapter/v2rayn"
 )
 
 type Config struct {
@@ -79,4 +80,7 @@ func (m *Adapter) BuildShadowrocket(uuid string, userInfo shadowrocket.UserInfo)
 
 func (m *Adapter) BuildSurfboard(siteName string, user surfboard.UserInfo) []byte {
 	return surfboard.BuildSurfboard(m.Adapter, siteName, user)
+}
+func (m *Adapter) BuildV2rayN(uuid string) []byte {
+	return v2rayn.NewV2rayN(m.Adapter).Build(uuid)
 }
