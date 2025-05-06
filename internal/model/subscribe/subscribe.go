@@ -48,6 +48,28 @@ func (s *Subscribe) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
+func (s *Subscribe) BeforeDelete(tx *gorm.DB) error {
+	if err := tx.Exec("UPDATE `subscribe` SET sort = sort - 1 WHERE sort > ?", s.Sort).Error; err != nil {
+		return err
+	}
+	return nil
+}
+func (s *Subscribe) BeforeUpdate(tx *gorm.DB) error {
+	var count int64
+	if err := tx.Set("gorm:query_option", "FOR UPDATE").Model(&Subscribe{}).
+		Where("sort = ? AND id != ?", s.Sort, s.Id).Count(&count).Error; err != nil {
+		return err
+	}
+	if count > 0 {
+		var maxSort int64
+		if err := tx.Model(&Subscribe{}).Select("MAX(sort)").Scan(&maxSort).Error; err != nil {
+			return err
+		}
+		s.Sort = maxSort + 1
+	}
+	return nil
+}
+
 type Discount struct {
 	Months   int64 `json:"months"`
 	Discount int64 `json:"discount"`
