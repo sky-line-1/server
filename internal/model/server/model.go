@@ -119,7 +119,7 @@ func (m *customServerModel) FindServerDetailByGroupIdsAndIds(ctx context.Context
 			Model(&Server{}).
 			Where("enable = ?", true)
 		if len(groupId) > 0 {
-			conn = conn.Where("group_id IN ?", groupId)
+			conn = conn.Or("group_id IN ?", groupId)
 		}
 		if len(ids) > 0 {
 			conn = conn.Where("id IN ?", ids)
