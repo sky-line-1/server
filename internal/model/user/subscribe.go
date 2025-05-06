@@ -79,7 +79,8 @@ func (m *defaultUserModel) QueryUserSubscribe(ctx context.Context, userId int64,
 		if len(status) > 0 {
 			conn = conn.Where("`status` IN ?", status)
 		}
-		return conn.Where("`expire_time` > ? OR `finished_at` >= ?", now, sevenDaysAgo).
+		// 订阅过期时间大于当前时间或者订阅结束时间大于当前时间
+		return conn.Where("`expire_time` > ? OR `finished_at` >= ? OR `expire_time` = ?", now, sevenDaysAgo, time.UnixMilli(0)).
 			Preload("Subscribe").
 			Find(&list).Error
 	})
