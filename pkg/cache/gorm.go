@@ -5,12 +5,16 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
-var ErrNotFound = redis.Nil
+var (
+	// ErrNotFound is the error when cache not found.
+	ErrNotFound = redis.Nil
+)
 
 type (
 	// ExecCtxFn defines the sql exec method.
@@ -23,16 +27,21 @@ type (
 	QueryCtxFn func(conn *gorm.DB, v interface{}) error
 
 	CachedConn struct {
-		db    *gorm.DB
-		cache *redis.Client
+		db             *gorm.DB
+		cache          *redis.Client
+		expiry         time.Duration
+		notFoundExpiry time.Duration
 	}
 )
 
 // NewConn returns a CachedConn with a redis cluster cache.
-func NewConn(db *gorm.DB, c *redis.Client) CachedConn {
+func NewConn(db *gorm.DB, c *redis.Client, opts ...Option) CachedConn {
+	o := newOptions(opts...)
 	return CachedConn{
-		db:    db,
-		cache: c,
+		db:             db,
+		cache:          c,
+		expiry:         o.Expiry,
+		notFoundExpiry: o.NotFoundExpiry,
 	}
 }
 
@@ -65,7 +74,7 @@ func (cc CachedConn) SetCache(key string, v interface{}) error {
 		return err
 	}
 	// set redis key
-	return cc.cache.Set(context.Background(), key, val, 0).Err()
+	return cc.cache.Set(context.Background(), key, val, cc.expiry).Err()
 }
 
 // ExecCtx runs given exec on given keys, and returns execution result.
